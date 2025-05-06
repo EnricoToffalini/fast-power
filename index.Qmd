@@ -87,9 +87,9 @@ Now let’s consider three plausible (though somewhat specific) simulation scena
 
 - ***"Different Sigma"***: A simple linear model with the classical $y = B_0 + B_1 x + \epsilon$ structure. The goal of the power simulation is to detect a difference in residual standard deviations ($\sigma$) across two categorical groups. The parameter of interest, $B$ (not shown in the equation), represents the logarithm of the ratio between the group-specific residual standard deviations. A single iteration with $N = 600$ takes approximately 0.0048 minutes; running 5,000 iterations on a single core takes about 25 minutes, while simulating a vector of 10 alternative $N$ values takes roughly 4 hours.
 
-- ***"Mixed-effects Logistic Regression"***: A logistic regression with crossed random effects. The goal is to estimate power for detecting an interaction between a continuous within-participant predictor and a categorical between-participants predictor on a binary accuracy outcome. This scenario is a simplified version of one of the preregistered studies mentioned earlier. A single iteration with $N = 600$ takes approximately 0.38 minutes; running 5,000 iterations takes about 1.3 days, and evaluating 10 alternative $N$ values would require nearly 2 weeks on a single core.
-
 - ***"SEM Multigroup"***: A structural equation model with two latent variables, $X$ and $Y$, each measured by five observed indicators, where $Y \sim X$. The parameter of interest is the difference in the regression coefficient linking $X$ to $Y$ across two groups. A single iteration with $N = 600$ takes approximately 0.0035 minutes; 5,000 iterations take about 17.5 minutes, and evaluating 10 different $N$ values takes around 3 hours.
+
+- ***"Mixed-effects Logistic Regression"***: A logistic regression with crossed random effects. The goal is to estimate power for detecting an interaction between a continuous within-participant predictor and a categorical between-participants predictor on a binary accuracy outcome. This scenario is a simplified version of one of the preregistered studies mentioned earlier. A single iteration with $N = 600$ takes approximately 0.38 minutes; running 5,000 iterations takes about 1.3 days, and evaluating 10 alternative $N$ values would require nearly 2 weeks on a single core.
 
 # Results
 
@@ -120,6 +120,32 @@ xDS$plot
 
 **Double check:** full power simulation with $N$ = 618 and 5,000 iterations showed that power was 79.1%, taking 14.7 minutes.
 
+### "SEM Multigroup"
+
+Plausible effect size is set as $B$ = 0.25 ($Y ~ X$ regression coefficient between the latent variables differs by about $\Delta$ = 0.25). For 80% power, target $SE$ = `r round(toffee::SE4power(0.25),4)`. 
+
+Let's run with a maximum of 60 iterations:
+
+```r
+source("simulationCode/SEMmultigroup.R")
+B = 0.25
+target_se = toffee::SE4power(B=B, power=0.8)
+Start = Sys.time()
+x = StdErr_power(simData=simData, target_SE = target_se,
+                 warm_up = 30, max_niter = 30)
+End = Sys.time()
+timetaken = difftime(End,Start,units="mins")
+x$N
+```
+```{r, echo=F}
+xSM1$plot
+```
+
+- Estimated N = `r xSM1$N`
+- Time taken for reaching the estimate is `r round(timetakenSM1,2)` minutes.
+
+**Double check:** full power simulation with $N$ = 887 and 5,000 iterations showed that power was 76.6%, taking 12.8 minutes.
+
 ### "Mixed-effects Logistic Regression"
 
 Plausible effect size is set as $B$ = 0.05 (this requires a bit of long explanation in the particular research scenario, but let's say it's about equivalent to Cohen's d = 0.25 after the whole procedure between the treated and the control group). For 80% power, target $SE$ = `r round(toffee::SE4power(0.05),4)`. 
@@ -145,32 +171,6 @@ xMLC$plot
 - Time taken for reaching the estimate is `r round(timetakenMLC,2)` minutes.
 
 **Double check:** full power simulation with $N$ = 494 and 5,000 iterations showed that power was ***IN PROGRESS***
-
-### "SEM Multigroup"
-
-Plausible effect size is set as $B$ = 0.25 ($Y ~ X$ regression coefficient between the latent variables differs by about $\Delta$ = 0.25). For 80% power, target $SE$ = `r round(toffee::SE4power(0.25),4)`. 
-
-Let's run with a maximum of 60 iterations:
-
-```r
-source("simulationCode/SEMmultigroup.R")
-B = 0.25
-target_se = toffee::SE4power(B=B, power=0.8)
-Start = Sys.time()
-x = StdErr_power(simData=simData, target_SE = target_se,
-                 warm_up = 30, max_niter = 30)
-End = Sys.time()
-timetaken = difftime(End,Start,units="mins")
-x$N
-```
-```{r, echo=F}
-xSM1$plot
-```
-
-- Estimated N = `r xSM1$N`
-- Time taken for reaching the estimate is `r round(timetakenSM1,2)` minutes.
-
-**Double check:** full power simulation with $N$ = 887 and 5,000 iterations showed that power was ***IN PROGRESS***
 
 # Conclusions
 
