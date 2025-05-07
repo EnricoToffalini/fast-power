@@ -115,7 +115,7 @@ x$plot
 xDS$plot
 ```
 
-- Estimated N = `r xDS$N`
+- Estimated N = `r xDS$N` (95%CI: `r xDS$N_ci[1]`, `r xDS$N_ci[2]`)
 - Time taken for reaching the estimate is `r round(timetakenDS,1)` minutes.
 
 **Double check:** full power simulation with $N$ = 618 and 5,000 iterations showed that power was 79.1%, taking 14.7 minutes.
@@ -141,7 +141,7 @@ x$N
 xSM1$plot
 ```
 
-- Estimated N = `r xSM1$N`
+- Estimated N = `r xSM1$N` (95%CI: `r xSM1$N_ci[1]`, `r xSM1$N_ci[2]`)
 - Time taken for reaching the estimate is `r round(timetakenSM1,2)` minutes.
 
 **Double check:** full power simulation with $N$ = 887 and 5,000 iterations showed that power was 76.6%, taking 12.8 minutes.
@@ -167,10 +167,10 @@ x$N
 xMLC$plot
 ```
 
-- Estimated N = `r xMLC$N`
+- Estimated N = `r xMLC$N` (95%CI: `r xMLC$N_ci[1]`, `r xMLC$N_ci[2]`)
 - Time taken for reaching the estimate is `r round(timetakenMLC,2)` minutes.
 
-**Double check:** full power simulation with $N$ = 494 and 5,000 iterations showed that power was ***IN PROGRESS***
+**Double check:** full power simulation with $N$ = 494 and 5,000 iterations showed that power was 81.1%, taking 7.59 hours when parallelized over 6 cores, meaning a single-core process would take about 45.54 hours.
 
 # Conclusions
 

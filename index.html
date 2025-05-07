@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Toffa">
-<meta name="dcterms.date" content="2025-05-06">
+<meta name="dcterms.date" content="2025-05-07">
 
 <title>Optimizing Power Simulation  - The Standard Error Algorithm in Action</title>
 <style>
@@ -140,7 +140,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 6, 2025</p>
+      <p class="date">May 7, 2025</p>
     </div>
   </div>
   
@@ -262,7 +262,7 @@ SE = \frac{|\!B|}{\Phi^{-1}(1 - \alpha) + \Phi^{-1}(\text{power})}
 </div>
 </div>
 <ul>
-<li>Estimated N = 618</li>
+<li>Estimated N = 618 (95%CI: 616, 619)</li>
 <li>Time taken for reaching the estimate is 0.6 minutes.</li>
 </ul>
 <p><strong>Double check:</strong> full power simulation with <span class="math inline">\(N\)</span> = 618 and 5,000 iterations showed that power was 79.1%, taking 14.7 minutes.</p>
@@ -290,7 +290,7 @@ SE = \frac{|\!B|}{\Phi^{-1}(1 - \alpha) + \Phi^{-1}(\text{power})}
 </div>
 </div>
 <ul>
-<li>Estimated N = 887</li>
+<li>Estimated N = 887 (95%CI: 873, 901)</li>
 <li>Time taken for reaching the estimate is 0.31 minutes.</li>
 </ul>
 <p><strong>Double check:</strong> full power simulation with <span class="math inline">\(N\)</span> = 887 and 5,000 iterations showed that power was 76.6%, taking 12.8 minutes.</p>
@@ -318,10 +318,10 @@ SE = \frac{|\!B|}{\Phi^{-1}(1 - \alpha) + \Phi^{-1}(\text{power})}
 </div>
 </div>
 <ul>
-<li>Estimated N = 494</li>
+<li>Estimated N = 494 (95%CI: 487, 501)</li>
 <li>Time taken for reaching the estimate is 60.21 minutes.</li>
 </ul>
-<p><strong>Double check:</strong> full power simulation with <span class="math inline">\(N\)</span> = 494 and 5,000 iterations showed that power was <strong><em>IN PROGRESS</em></strong></p>
+<p><strong>Double check:</strong> full power simulation with <span class="math inline">\(N\)</span> = 494 and 5,000 iterations showed that power was 81.1%, taking 7.59 hours when parallelized over 6 cores, meaning a single-core process would take about 45.54 hours.</p>
 </section>
 </section>
 <section id="conclusions" class="level1" data-number="5">
