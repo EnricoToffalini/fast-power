@@ -1,6 +1,7 @@
 ---
 title: "Optimizing Power Simulation <br/>- The Standard Error Algorithm in Action"
-author: "Toffa"
+author: "Enrico Toffalini & Filippo Gambarota"
+include-in-header: assets/header.html
 date: today
 format: 
   html:
@@ -14,8 +15,8 @@ format:
 library(effects)
 library(ggplot2)
 library(toffee) # devtools::install_github("enricotoffalini/toffee")
-source("StdErr algorithm function.R")
-load("simulations.RData")
+source("R/StdErr algorithm function.R")
+load("R/simulations.RData")
 
 set.seed(0)
 ```
@@ -26,14 +27,16 @@ Running a full power simulation can be computationally expensive, especially whe
 
 To simplify the discussion, let’s assume we are interested in estimating only the required sample size $N$, while keeping constant other relevant parameters that affect power (e.g., number of trials $k$, or measure reliability $\omega$). However, the procedure presented below can be easily extended to cases where multiple parameters vary simultaneously.
 
-The idea is as follows: although full power simulation is costly, in many cases (though not all), there is a relatively fast workaround for obtaining a sufficiently precise estimate of the required sample size to achieve the desired power. This approach applies when we fit parametric models and are interested in the power to detect a parameter estimate $B$ as statistically significant, given its associated standard error ($SE$). The key points are:
+The idea is as follows: although full power simulation is costly, in many cases (though not all), there is a relatively fast workaround for obtaining a sufficiently precise estimate of the required sample size to achieve the desired power. This approach applies when we fit parametric models and are interested in the power to detect a parameter estimate $B$ as statistically significant, given its associated standard error ($StdErr$). The key points are:
 
-- A well-defined $z$-score (i.e., $B / \text{SE}$) corresponds to the desired power level;
-- The relationship between $SE$ and $N$ is approximately $\log(\text{SE}) \sim -0.5 \times \log(N)$.
+- A well-defined $z$-score (i.e., $B / \text{StdErr}$) corresponds to the desired power level;
+- The relationship between $StdErr$ and $N$ is approximately $\log(\text{StdErr}) \sim -0.5 \times \log(N)$. This is due to the fact that:
 
-The first point is illustrated in the plot below: the red curve shows the sampling distribution of $B$ under the null hypothesis ($H_0$), while the blue curve represents the expected distribution of $B$ under the alternative hypothesis ($H_1$), assuming an effect size of 0.30. The statistical power under $H_1$ is 80%, which is achieved when $SE = 0.107$.
+$$StdErr \approx \frac{\sigma}{\sqrt{N}}$$
 
-```{r, message=F, warning=F}
+The first point is illustrated in the plot below: the red curve shows the sampling distribution of $B$ under the null hypothesis ($H_0$), while the blue curve represents the expected distribution of $B$ under the alternative hypothesis ($H_1$), assuming an effect size of 0.30. The statistical power under $H_1$ is 80%, which is achieved when $StdErr = 0.107$.
+
+```{r, message=F, warning=F, fig.width=7, fig.height=3}
 B = 0.30
 se = toffee::SE4power(B=0.30, power=0.8)
 
@@ -45,6 +48,10 @@ ggplot()+
   stat_function(fun=dnorm,args=list(mean=B,sd=se),xlim=c(-3,3),color=NA,fill="blue",geom="area",alpha=.3, n=1e3)+
   theme(text=element_text(size=20))+
   scale_x_continuous(breaks=seq(-10,10,.1))+
+  annotate("text", x = 0+.035, y = dnorm(0, mean = 0, sd = se) + 0.2,
+           label = "H0", size = 6, color = "red") +
+  annotate("text", x = B+.035, y = dnorm(B, mean = B, sd = se) + 0.2,
+           label = "H1", size = 6, color = "blue")+
   xlab("B") + ylab("density")
   
 ```
@@ -52,30 +59,32 @@ ggplot()+
 The target standard error can be computed as follows:
 
 $$
-SE = \frac{|\!B|}{\Phi^{-1}(1 - \alpha) + \Phi^{-1}(\text{power})}
+criticalStdErr = \frac{|\!B|}{\Phi^{-1}(1 - \alpha) + \Phi^{-1}(\text{power})}
 $$
 
 where $\Phi^{-1}$ denotes the quantile function of the standard normal distribution, $\alpha$ is the significance level (e.g., 0.05), and "power" is the desired statistical power (e.g., 0.80).
 
-To summarize, the idea is to identify the value of $N$ that is, on average, associated with the desired $SE$, taking advantage of the approximately stable relationship between them.
+To summarize, the idea is to identify the value of $N$ that is, on average, associated with the desired $StdErr$, taking advantage of the approximately stable relationship between them.
 
 
 # The Algorithm, more or less
 
 The proposed algorithm (see code <a href="StdErr algorithm function.R" target="_blank">here</a>) can be summarized as follows:
 
-1. Provide a simulation function that takes as input the sample size $N$ and effect size $B$, runs a single iteration, and returns the estimated standard error ($SE$) of the parameter of interest.
-2. Compute the *target $SE$*, i.e., the standard error that would yield the desired power (e.g., 80%) for the chosen effect size $B$ (see formula above).
+1. Provide a simulation function that takes as input the sample size $N$ and effect size $B$, runs a single iteration, and returns the estimated standard error ($StdErr$) of the parameter of interest.
+2. Compute the *target $StdErr$*, i.e., the standard error that would yield the desired power (e.g., 80%) for the chosen effect size $B$ (see formula above).
 3. Begin with a small $N$ and run a single simulation:
-   - If the returned $SE$ is **larger** than the target $SE$, increase $N$;
-   - If the returned $SE$ is **smaller**, decrease $N$.
-4. Repeat the above process for several iterations to explore the $SE$–$N$ relationship.
+   - If the returned $StdErr$ is **larger** than the target $StdErr$, increase $N$;
+   - If the returned $StdErr$ is **smaller**, decrease $N$.
+4. Repeat the above process for several iterations to explore the $StdErr$–$N$ relationship.
 5. Once a few observations have been collected, fit a simple linear model using the log–log relationship:  
+
    $$
-   \log(\text{SE}) \sim \log(N)
+   \log(\text{StdErr}) \sim \log(N)
    $$
-6. Use this model to iteratively refine the estimate of $N$ that would yield the target $SE$, concentrating further iterations around the predicted value.
-7. Stop the procedure when sufficient precision is reached, the maximum number of iterations is exhausted, or a predefined time limit is hit. Take the estimated $N$ corresponding to the target $SE$ as the final estimate of the required sample size.
+   
+6. Use this model to iteratively refine the estimate of $N$ that would yield the target $StdErr$, concentrating further iterations around the predicted value.
+7. Stop the procedure when sufficient precision is reached, the maximum number of iterations is exhausted, or a predefined time limit is hit. Take the estimated $N$ corresponding to the target $StdErr$ as the final estimate of the required sample size.
 8. To confirm, run a full power simulation using this estimated $N$ and verify that the achieved power matches expectations.
 
 This procedure can often identify the required $N$ in just a few dozen iterations, many of which are even run with $N$ well below the final estimate, saving computational time. Alternatively, it may allow you to perform a full power simulation on a single, highly plausible $N$, rather than evaluating an entire vector of candidate $N$s, thus reducing computational time by at least one order of magnitude.
@@ -85,22 +94,60 @@ This procedure can often identify the required $N$ in just a few dozen iteration
 
 Now let’s consider three plausible (though somewhat specific) simulation scenarios that require power estimation. These scenarios were selected because they represent clearly distinct types of statistical models, but in all cases the parameter of interest has an associated standard error. In each scenario, $B$ is set so that statistical power reaches approximately 70–80% when $N = 600$.
 
-- ***"Different Sigma"***: A simple linear model with the classical $y = B_0 + B_1 x + \epsilon$ structure. The goal of the power simulation is to detect a difference in residual standard deviations ($\sigma$) across two categorical groups. The parameter of interest, $B$ (not shown in the equation), represents the logarithm of the ratio between the group-specific residual standard deviations. A single iteration with $N = 600$ takes approximately 0.0048 minutes; running 5,000 iterations on a single core takes about 25 minutes, while simulating a vector of 10 alternative $N$ values takes roughly 4 hours.
+💥 ***"<a href="R/simulationCode/DifferentSigma.R" target="_blank">Different Sigma</a>"***: A simple linear model, where the goal of the power simulation is to detect a difference in residual standard deviations ($\sigma$) across two categorical groups. The parameter of interest, $B$ (not shown in the equation), represents the logarithm of the ratio between the group-specific residual standard deviations. A single iteration with $N = 600$ takes approximately 0.0048 minutes; running 5,000 iterations on a single core takes about 25 minutes, while simulating a vector of 10 alternative $N$ values takes roughly 4 hours.
 
-- ***"SEM Multigroup"***: A structural equation model with two latent variables, $X$ and $Y$, each measured by five observed indicators, where $Y \sim X$. The parameter of interest is the difference in the regression coefficient linking $X$ to $Y$ across two groups. A single iteration with $N = 600$ takes approximately 0.0035 minutes; 5,000 iterations take about 17.5 minutes, and evaluating 10 different $N$ values takes around 3 hours.
+$$y_i = \beta_0 + \beta_1x_i + \varepsilon_i, \quad \varepsilon_i \sim \mathcal{N}(0, \sigma_{g_i}^2)$$
+$$\sigma_{g_i} =
+    \begin{cases}
+        \sigma_A, & \text{if } g_i = A, \\
+        \sigma_B, & \text{if } g_i = B.
+    \end{cases}$$
 
-- ***"Mixed-effects Logistic Regression"***: A logistic regression with crossed random effects. The goal is to estimate power for detecting an interaction between a continuous within-participant predictor and a categorical between-participants predictor on a binary accuracy outcome. This scenario is a simplified version of one of the preregistered studies mentioned earlier. A single iteration with $N = 600$ takes approximately 0.38 minutes; running 5,000 iterations takes about 1.3 days, and evaluating 10 alternative $N$ values would require nearly 2 weeks on a single core.
+$$B = \log\left( \frac{\sigma_B}{\sigma_A} \right)$$
+
+💥 ***"<a href="R/simulationCode/SEMmultigroup.R" target="_blank">SEM Multigroup</a>"***: A structural equation model with two latent variables, $X$ and $Y$, each measured by five observed indicators, where $Y \sim X$. The parameter of interest is the difference in the regression coefficient linking $X$ to $Y$ across two groups. A single iteration with $N = 600$ takes approximately 0.0035 minutes; 5,000 iterations take about 17.5 minutes, and evaluating 10 different $N$ values takes around 3 hours.
+
+![Description of the SEM path diagram](simulationCode/SEMplot.png){width=70%}
+
+$$
+Y \sim \beta_g X, \quad \text{with} \quad \text{group } g \in \{1, 2\}
+$$
+
+$$
+H_0: \beta_1 = \beta_2 \quad \text{vs.} \quad H_1: \beta_1 \neq \beta_2
+$$
+Inference is made on the difference parameter `diff`:
+$$
+\text{diff} := \beta_1 - \beta_2
+$$
+
+💥 ***"<a href="R/simulationCode/MixedLogisticCrossed.R" target="_blank">Mixed-effects Logistic Regression</a>"***: A logistic regression with crossed random effects. The goal is to estimate power for detecting an interaction between a continuous within-participant predictor and a categorical between-participants predictor on a binary accuracy outcome. This scenario is a simplified version of one of the preregistered studies mentioned earlier. A single iteration with $N = 600$ takes approximately 0.38 minutes; running 5,000 iterations takes about 1.3 days, and evaluating 10 alternative $N$ values would require nearly 2 weeks on a single core.
+
+$$
+\begin{align}
+\text{logit}(\Pr(\text{acc}_i = 1)) &= \beta_0 + \beta_1 \cdot \text{Block}_i + \beta_2 \cdot \text{Group}_i \\
+&\quad + \beta_3 \cdot (\text{Block}_i \cdot \text{Group}_i) + u_{\text{id}[i]} + u_{\text{id}[i]}^{(s)} \cdot \text{Block}_i + v_{\text{item}[i]}
+\end{align}
+$$
+
+
+- $u_{\text{id}[i]} \sim \mathcal{N}(0, \tau_{\text{intercept}})$: random intercept for participant
+- $u_{\text{id}[i]}^{(s)} \sim \mathcal{N}(0, \tau_{\text{slope}})$: random slope for `Block` by participant
+- $v_{\text{item}[i]} \sim \mathcal{N}(0, \omega)$: random intercept for item
+
+The parameter of interest is the fixed-effect interaction coefficient between `Block` and `Group`:
+$$H_0: \beta_3 = 0 \quad \text{vs.} \quad H_1: \beta_3 \neq 0$$
 
 # Results
 
 ### "Different Sigma" scenario
 
-Plausible effect size is set as $B$ = 0.16 ($\sigma$ is about 1.17 times in one group compared to the other). So, for 80% power, target $SE$ = `r round(toffee::SE4power(0.15),4)`. 
+Plausible effect size is set as $B$ = 0.16 ($\sigma$ is about 1.17 times in one group compared to the other). So, for 80% power, target $StdErr$ = `r round(toffee::SE4power(0.15),4)`. 
 
 Let's run with a maximum of 60 iterations:
 
 ```r
-source("simulationCode/DifferentSigma.R")
+source("R/simulationCode/DifferentSigma.R")
 B = 0.16
 target_se = toffee::SE4power(B=B, power=0.8)
 Start = Sys.time()
@@ -127,7 +174,7 @@ Plausible effect size is set as $B$ = 0.25 ($Y ~ X$ regression coefficient betwe
 Let's run with a maximum of 60 iterations:
 
 ```r
-source("simulationCode/SEMmultigroup.R")
+source("R/simulationCode/SEMmultigroup.R")
 B = 0.25
 target_se = toffee::SE4power(B=B, power=0.8)
 Start = Sys.time()
@@ -148,12 +195,12 @@ xSM1$plot
 
 ### "Mixed-effects Logistic Regression"
 
-Plausible effect size is set as $B$ = 0.05 (this requires a bit of long explanation in the particular research scenario, but let's say it's about equivalent to Cohen's d = 0.25 after the whole procedure between the treated and the control group). For 80% power, target $SE$ = `r round(toffee::SE4power(0.05),4)`. 
+Plausible effect size is set as $B$ = 0.05 (this requires a bit of long explanation in the particular research scenario, but let's say it's about equivalent to Cohen's d = 0.25 after the whole procedure between the treated and the control group). For 80% power, target $StdErr$ = `r round(toffee::SE4power(0.05),4)`. 
 
 Let's run with a maximum of 60 iterations:
 
 ```r
-source("simulationCode/MixedLogisticCrossed.R")
+source("R/simulationCode/MixedLogisticCrossed.R")
 B = 0.05
 target_se = toffee::SE4power(B=B, power=0.8)
 Start = Sys.time()
@@ -181,6 +228,6 @@ In all three scenarios, $N$ for desired power was estimated in 60 to 200 iterati
 What we still need to establish:
 
 - Whether there are cases in which the estimated $N$ is systematically biased compared to the true one for desired power;
-- Whether there are cases in which the $N$ is difficult to estimate because the $N$-to-$SE$ relationship is highly noisy (as it might be the case of the SEM above);
-- How to manage multiple-variable cases in which $SE$ does not depend on $N$ alone, but also on $k$ number of trials, $\omega$ reliability, and more; this case should be more complex but not conceptually different.
+- Whether there are cases in which the $N$ is difficult to estimate because the $N$-to-$StdErr$ relationship is highly noisy (as it might be the case of the SEM above);
+- How to manage multiple-variable cases in which $StdErr$ does not depend on $N$ alone, but also on $k$ number of trials, $\omega$ reliability, and more; this case should be more complex but not conceptually different.
 

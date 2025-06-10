@@ -1,0 +1,62 @@
+---
+title: "N & k (Subjects & Trials)"
+author: "Enrico Toffalini & Filippo Gambarota"
+include-in-header: assets/header.html
+date: today
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    code-fold: true
+---
+
+```{r, message=F, warning=F}
+library(ggplot2)
+source("R/simulationCode/N-and-k-Logistic.R")
+```
+
+In many cases, statistical power depends on more than one design feature simultaneously, for example sample size, number of trials per participant, and measurement reliability. When more than one of these features are free to vary, we need to explore multiple combinations that yield equivalent power. For example, one might aim to balance the number of participants and the number of trials per participant to find an optimal trade-off between recruitment effort and the experiment duration. This generalizes to many scenarios involving mixed-effects models, as you may need to allocate resources across multiple levels of grouping (e.g., children, schools, geographical regions).
+
+The question is how the $StdErr$–based algorithm can be extended to handle multiple design parameters. To illustrate, we consider a mixed-effects logistic regression in which participants respond to multiple binomial trials. In this context, both an increase in sample size ($N$) and an increase in the number of trials per participant ($k$) can reduce the standard error of the effect of interest.
+
+Can the algorithm be smoothly extended to $k$, just as it is worked for $N$? Yes, but there are limitations. In many situations, $StdErr$ does not continue to decrease indefinitely as a function of $k$. This violates the log–log linearity between the *number of observations* and $StdErr$. For a given value of $N$, increasing $k$ initially improves precision, but there is typically a point of diminishing returns, an asymptote beyond which collecting additional trials becomes practically useless for decreasing $StdErr$.
+
+# `glmer(response ~ group + (1|id), data=df,`<br/>`family = binomial(link="logit"))`
+
+This first case illustrates the core issue. Here, `group` is a categorical fixed effect that varies between participants, and `response` is a binary variable (say, performance on math items) modeled as a function of group membership (e.g., a special-needs group). In this setup, increasing the number of items (i.e., trials per participant, $k$) improves measurement precision and reduces $StdErr$. However, the relationship between $k$ and the standard error is not log–log linear.
+
+For sample size $N$, the expected log–log linear relationship with $StdErr$ is preserved:
+
+[image]
+
+But for the number of trials $k$, the relationship breaks down and deviates from linearity:
+
+[image]
+
+
+
+# `glmer(response ~ type + (1|id), data=df,`<br/>`family = binomial(link="logit"))`
+
+The log–log relationship between $StdErr$ and $k$ is restored when the fixed effect (`type`) varies at the stimulus level, rather than across participants. In this scenario, increasing the number of trials accumulates more information without bound... but this is true only as long as the model includes only random intercepts and no random slopes.
+
+For sample size $N$:
+
+[image]
+
+For number of trials $k$:
+
+[image]
+
+# `glmer(response ~ type + (type|id), data=df,`<br/>`family = binomial(link="logit"))`
+
+Finally, when the model includes random slopes, increasing the number of trials per participant ($k$) no longer yields unlimited gains in precision. The sample size $N$ becomes a limiting factor, and a ceiling is imposed on how much the $StdErr$ can be further reduced by adding more trials $k$.
+
+For sample size $N$:
+
+[image]
+
+For number of trials $k$:
+
+[image]
+
