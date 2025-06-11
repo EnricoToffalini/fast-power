@@ -225,9 +225,10 @@ In all three scenarios, $N$ for desired power was estimated in 60 to 200 iterati
 
 # Future directions
 
-What we still need to establish:
+What we still need to understand:
 
-- Whether there are cases in which the estimated $N$ is systematically biased compared to the true one for desired power;
-- Whether there are cases in which the $N$ is difficult to estimate because the $N$-to-$StdErr$ relationship is highly noisy (as it might be the case of the SEM above);
-- How to manage multiple-variable cases in which $StdErr$ does not depend on $N$ alone, but also on $k$ number of trials, $\omega$ reliability, and more; this case should be more complex but not conceptually different.
+- Whether there are cases in which the estimated $N$ is systematically biased compared to the true one for desired power (i.e., the $N$-to-$StdErr$ log-log relationship is not linear);
+- Whether there are cases in which the $N$ is difficult to estimate because the $N$-to-$StdErr$ log-log relationship is still linear but highly noisy;
+- How to manage multiple-variable cases in which $StdErr$ does not depend on $N$ alone, but also on $k$ number of trials (or similar multilevel situations), $\omega$ reliability, and more; this case should be more complex but not conceptually different.
 
+<h4><a href="N-and-k.html" target="_blank">See some preliminary computation about the issue of adapting the algorithm to the multilevel case (with $N$ subjects and $k$ trials)</a></h4>

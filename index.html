@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Enrico Toffalini &amp; Filippo Gambarota">
-<meta name="dcterms.date" content="2025-06-10">
+<meta name="dcterms.date" content="2025-06-11">
 
 <title>Optimizing Power Simulation  - The Standard Error Algorithm in Action</title>
 <style>
@@ -142,7 +142,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 10, 2025</p>
+      <p class="date">June 11, 2025</p>
     </div>
   </div>
   
@@ -367,12 +367,15 @@ H_0: \beta_1 = \beta_2 \quad \text{vs.} \quad H_1: \beta_1 \neq \beta_2
 </section>
 <section id="future-directions" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Future directions</h1>
-<p>What we still need to establish:</p>
+<p>What we still need to understand:</p>
 <ul>
-<li>Whether there are cases in which the estimated <span class="math inline">\(N\)</span> is systematically biased compared to the true one for desired power;</li>
-<li>Whether there are cases in which the <span class="math inline">\(N\)</span> is difficult to estimate because the <span class="math inline">\(N\)</span>-to-<span class="math inline">\(StdErr\)</span> relationship is highly noisy (as it might be the case of the SEM above);</li>
-<li>How to manage multiple-variable cases in which <span class="math inline">\(StdErr\)</span> does not depend on <span class="math inline">\(N\)</span> alone, but also on <span class="math inline">\(k\)</span> number of trials, <span class="math inline">\(\omega\)</span> reliability, and more; this case should be more complex but not conceptually different.</li>
+<li>Whether there are cases in which the estimated <span class="math inline">\(N\)</span> is systematically biased compared to the true one for desired power (i.e., the <span class="math inline">\(N\)</span>-to-<span class="math inline">\(StdErr\)</span> log-log relationship is not linear);</li>
+<li>Whether there are cases in which the <span class="math inline">\(N\)</span> is difficult to estimate because the <span class="math inline">\(N\)</span>-to-<span class="math inline">\(StdErr\)</span> log-log relationship is still linear but highly noisy;</li>
+<li>How to manage multiple-variable cases in which <span class="math inline">\(StdErr\)</span> does not depend on <span class="math inline">\(N\)</span> alone, but also on <span class="math inline">\(k\)</span> number of trials (or similar multilevel situations), <span class="math inline">\(\omega\)</span> reliability, and more; this case should be more complex but not conceptually different.</li>
 </ul>
+<h4 class="anchored" data-anchor-id="future-directions">
+<a href="N-and-k.html" target="_blank">See some preliminary computation about the issue of adapting the algorithm to the multilevel case (with <span class="math inline">\(N\)</span> subjects and <span class="math inline">\(k\)</span> trials)</a>
+</h4>
 </section>
 
 </main>
