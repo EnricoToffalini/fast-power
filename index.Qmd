@@ -227,8 +227,9 @@ In all three scenarios, $N$ for desired power was estimated in 60 to 200 iterati
 
 What we still need to understand:
 
-- Whether there are cases in which the estimated $N$ is systematically biased compared to the true one for desired power (i.e., the $N$-to-$StdErr$ log-log relationship is not linear);
-- Whether there are cases in which the $N$ is difficult to estimate because the $N$-to-$StdErr$ log-log relationship is still linear but highly noisy;
+- Whether there are cases in which the $N$ is difficult to estimate because the $N$-to-$StdErr$ log-log relationship is still linear but highly noisy, or it is not even noisy;
 - How to manage multiple-variable cases in which $StdErr$ does not depend on $N$ alone, but also on $k$ number of trials (or similar multilevel situations), $\omega$ reliability, and more; this case should be more complex but not conceptually different.
+- How to expand this to the case where inference on more than one parameter is considered at once (e.g., inference is primarily based on a omnibus test); 
+- What can be done when inference is made using non-parametric statistics.
 
 <h4><a href="N-and-k.html" target="_blank">See some preliminary computation about the issue of adapting the algorithm to the multilevel case (with $N$ subjects and $k$ trials)</a></h4>
