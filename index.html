@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Enrico Toffalini &amp; Filippo Gambarota">
-<meta name="dcterms.date" content="2025-06-12">
+<meta name="dcterms.date" content="2025-06-13">
 
 <title>Optimizing Power Simulation  - The Standard Error Algorithm in Action</title>
 <style>
@@ -142,7 +142,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">June 12, 2025</p>
+      <p class="date">June 13, 2025</p>
     </div>
   </div>
   
@@ -247,7 +247,7 @@ criticalStdErr = \frac{|\!B|}{\Phi^{-1}(1 - \alpha) + \Phi^{-1}(\text{power})}
 <p>💥 <strong><em>“<a href="R/simulationCode/SEMmultigroup.R" target="_blank">SEM Multigroup</a>”</em></strong>: A structural equation model with two latent variables, <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>, each measured by five observed indicators, where <span class="math inline">\(Y \sim X\)</span>. The parameter of interest is the difference in the regression coefficient linking <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span> across two groups. A single iteration with <span class="math inline">\(N = 600\)</span> takes approximately 0.0035 minutes; 5,000 iterations take about 17.5 minutes, and evaluating 10 different <span class="math inline">\(N\)</span> values takes around 3 hours.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="simulationCode/SEMplot.png" class="img-fluid figure-img" style="width:70.0%"></p>
+<p><img src="assets/multiSEM.png" class="img-fluid figure-img" style="width:70.0%"></p>
 <figcaption>Description of the SEM path diagram</figcaption>
 </figure>
 </div>

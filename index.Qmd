@@ -107,7 +107,7 @@ $$B = \log\left( \frac{\sigma_B}{\sigma_A} \right)$$
 
 💥 ***"<a href="R/simulationCode/SEMmultigroup.R" target="_blank">SEM Multigroup</a>"***: A structural equation model with two latent variables, $X$ and $Y$, each measured by five observed indicators, where $Y \sim X$. The parameter of interest is the difference in the regression coefficient linking $X$ to $Y$ across two groups. A single iteration with $N = 600$ takes approximately 0.0035 minutes; 5,000 iterations take about 17.5 minutes, and evaluating 10 different $N$ values takes around 3 hours.
 
-![Description of the SEM path diagram](simulationCode/SEMplot.png){width=70%}
+![Description of the SEM path diagram](assets/multiSEM.png){width=70%}
 
 $$
 Y \sim \beta_g X, \quad \text{with} \quad \text{group } g \in \{1, 2\}
